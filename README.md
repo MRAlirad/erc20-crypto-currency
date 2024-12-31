@@ -1,4 +1,4 @@
-## ERC20 Crypto Currency
+# ERC20 Crypto Currency
 
 We are going to develop an ERC20 Crypto Currency. You will:
 
@@ -55,3 +55,102 @@ There are a few common reasons that someone may choose to launch an `ERC20 token
 _**How do I build an ERC20?**_
 
 All anyone has to do to develop and `ERC20` is to deploy a smart contract which follows the **[token standard](https://eips.ethereum.org/EIPS/eip-20)**. This ultimate boils down to assuring our contract includes a number of necessary functions: `transfer`, `approve`, `name`, `symbol`, `balanceOf` etc.
+
+## Creating an ERC20
+
+set up the foundry project environment using `forge init` command.
+
+You can begin by creating a new token our `src` directory named `ManualToken.sol`. We can start this contract the same way we've been practicing this whole time.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+contract ManualToken {}
+```
+
+All we need to do to make our token compatible is follow the **[ERC20 Token Standard](https://eips.ethereum.org/EIPS/eip-20)**. Essentially this means we need to include the required functions/methods for our deployment to follow this standard. Let's add thing functionality then!
+
+Let's start with name, decimals and totalSupply
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+contract ManualToken {
+
+    function name() public pure returns(string memory) {
+        return "Manual Token";
+    }
+
+    function totalSupply() public pure returns (uint256) {
+        return 100 ether; // 100000000000000000000
+    }
+
+    function decimals() public pure returns (uint8) {
+        return 18;
+    }
+}
+```
+
+> ❗ **NOTE**
+> Despite being an optional method, we're including `decimals` here as a point of clarification since we're declaring our total supply as 100 ether. 100 ether = 100 + 18 decimals places.
+
+The next functions required by the ERC20 standard are `balanceOf` and `transfer`.
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+contract ManualToken {
+
+    function name() public pure returns(string memory) {
+        return "Manual Token";
+    }
+
+    function totalSupply() public pure returns (uint256){
+        return 100 ether; // 100000000000000000000
+    }
+
+    function decimals() public pure returns (uint8) {
+        return 18;
+    }
+
+    function balanceOf(address _owner) public pure returns (uint256){
+        return // ???
+    }
+}
+```
+
+What is this function meant to return exactly? We're going to need a mapping to track the balances of each address...
+
+```solidity
+mapping(address => uint256) private s_balances;
+```
+
+So now our `balanceOf` function can return this mapped value based on the address parameter being passed.
+
+```solidity
+function balanceOf(address _owner) public pure returns (uint256) {
+   return s_balances[_owner];
+}
+```
+
+An interesting thing that comes to light from this function is - someone's balance of a token is really just some mapping on a smart contract that says `this number is associated with this address` That's it. All swaps, transfers and trades are represented as an updating to the balance of this mapping.
+
+> ❗ **PROTIP**
+> Our name function could also be represented by a public declaration such as `string public name = "ManualToken";`. This is because Solidity creates public getter functions when compiled for any publicly accessible storage variables!
+
+Our next required function is transfer:
+
+```solidity
+function transfer(address _to, uint256 _amount) public {
+    uint256 previousBalance = balanceOf(msg.sender) + balanceOf(_to);
+    s_balances[msg.sender] -= _amount;
+    s_balances[_to] = _amount;
+
+    require(balanceOf(msg.sender) + balanceOf(_to) == previousBalance);
+}
+```
+
+So, a basic transfer function could look something like the above, a simple adjustment of the balances mapped to both the sender and receiver addresses in our contract.
