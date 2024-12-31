@@ -157,9 +157,7 @@ So, a basic transfer function could look something like the above, a simple adju
 
 ## ERC20 OpenZeppelin
 
-Welcome back! As mentioned in the closing of our last lesson, we could absolutely continue with manually building out a smart contract comprised of all the required functions to be compatible with the ERC20 standard, but wouldn't it be more convenient to use pre-deployed, audited, and ready-to-go contracts?
-
-In this section, I'll guide you on using the OpenZeppelin Library to achieve this.
+Let's using the OpenZeppelin Library to achieve pre-deployed, audited, and ready-to-go contracts to build our ERC20 token.
 
 > ❗ **NOTE**
 > OpenZeppelin is renowned for its Smart Contract framework, offering a vast repository of audited contracts readily integrable into your codebase.
@@ -170,7 +168,7 @@ Additionally, OpenZeppelin offers a contract wizard, streamlining the contract c
 
 <img src="./images/erc20-open-zeppelin1.png" alt="OpenZeppelin Contract Wizard" />
 
-Let's leverage OpenZeppelin to create a new ERC20 Token. Create a new file within `src` named `OurToken.sol`. Once that's done, let's install the OpenZeppelin library into our contract.
+Let's leverage OpenZeppelin to create a new ERC20 Token. Create a new file within `src` named `MyToken.sol`. Once that's done, let's install the OpenZeppelin library into our contract.
 
 ```bash
 forge install OpenZeppelin/openzeppelin-contracts --no-commit
@@ -182,7 +180,7 @@ Once installed you'll see the ERC20 contract from OpenZeppelin within `lib/openz
 remappings = ["@openzeppelin=lib/openzeppelin-contracts"]
 ```
 
-We can now import and inherit this contract into `OurToken.sol`!
+We can now import and inherit this contract into `MyToken.sol`!
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -190,7 +188,7 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract OurToken is ERC20 {
+contract MyToken is ERC20 {
     //constructor goes here
 }
 ```
@@ -200,7 +198,7 @@ By importing the OpenZeppelin implementation of ERC20 this way, we inherit all t
 > ❗ **PROTIP**
 > If you're looking for an alternative library full of trusted contracts, I recommend looking at the **[Solmate Repo](https://github.com/transmissions11/solmate)** by Transmissions11.
 
-Now, we should recall that when inheriting from a contract with a constructor, our contract must fulfill the requirements of that constructor. We'll need to define details like a name and symbol for OurToken.
+Now, we should recall that when inheriting from a contract with a constructor, our contract must fulfill the requirements of that constructor. We'll need to define details like a name and symbol for MyToken.
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -208,8 +206,8 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract OurToken is ERC20 {
-    constructor(uint256 initialSupply) ERC20("OurToken", "OT") {
+contract MyToken is ERC20 {
+    constructor(uint256 initialSupply) ERC20("MyToken", "OT") {
         _mint(msg.sender, initialSupply);
     }
 }
@@ -218,3 +216,55 @@ contract OurToken is ERC20 {
 For the purposes of simple examples like this, I like to mint the initialSupply to the deployer/msg.sender, which I've demonstrated above.
 
 As always we can perform a sanity check to assure things are working as expected by running `forge build`.
+
+### ERC20 Deploy Script
+
+With our simple token contract written, we'll of course want to test and deploy it. Let's get started with writing a deploy script.
+
+In your workspace's `script` folder, create a file named `DeployMyToken.s.sol`.
+
+We expect MyToken to behave the same, regardless of the chain it's deployed on, so we don't really need a `HelperConfig` for this example. We'll skip that step and move write into writing the deploy script.
+
+To begin, we can import Script and MyToken as well as add the skeleton of our run function:
+
+```solidity
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.18;
+
+import {Script} from "forge-std/Script.sol";
+import {MyToken} from "../src/MyToken.sol";
+
+contract DeployMyToken is Script {
+    function run() external {}
+}
+```
+
+We're going to keep this really basic, we just want to deploy MyToken. We know that MyToken requires an initial supply as a constructor parameter, so let's declare that and then deploy our contract.
+
+```solidity
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.18;
+
+import {Script} from "forge-std/Script.sol";
+import {MyToken} from "../src/MyToken.sol";
+
+contract DeployMyToken is Script {
+    uint256 public constant INITIAL_SUPPLY = 1000 ether;
+
+    function run() external returns (MyToken) {
+        vm.startBroadcast();
+        MyToken ot = new MyToken(INITIAL_SUPPLY);
+        vm.stopBroadcast();
+
+        return ot;
+    }
+}
+
+```
+
+run `anvil` in a new terminal window and then and then run:
+```bash
+@forge script script/DeployMyToken.s.sol:DeployMyToken --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast
+```
