@@ -186,7 +186,7 @@ We can now import and inherit this contract into `MyToken.sol`!
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is ERC20 {
     //constructor goes here
@@ -204,7 +204,7 @@ Now, we should recall that when inheriting from a contract with a constructor, o
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is ERC20 {
     constructor(uint256 initialSupply) ERC20("MyToken", "OT") {
