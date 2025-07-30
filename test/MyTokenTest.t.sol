@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
-import {DeployMyToken} from "script/DeployMyToken.s.sol";
-import {MyToken} from "src/MyToken.sol";
+import { Test } from "forge-std/Test.sol";
+import { DeployMyToken } from "script/DeployMyToken.s.sol";
+import { MyToken } from "src/MyToken.sol";
 
 contract MyTokenTest is Test {
     MyToken public myToken;
@@ -22,8 +22,8 @@ contract MyTokenTest is Test {
         myToken.transfer(mra, STARTING_BALANCE);
     }
 
-    function testMRABalance() public {
-        assertEq(STARTING_BALANCE, myToken.balanceOf(mra));
+    function testMRABalance() public view {
+        assertEq(STARTING_BALANCE, myToken.balanceOf(mra)); // we transfer mra the starting balance in sutUp function
     }
 
     function testAllowanceWorks() public {
@@ -42,7 +42,7 @@ contract MyTokenTest is Test {
         assertEq(myToken.balanceOf(mra), STARTING_BALANCE - transferAmount);
     }
 
-    function testTrnsfer() public {
+    function testTransfer() public {
         uint256 amount = 1000;
         address receiver = address(0x1);
         vm.prank(msg.sender);

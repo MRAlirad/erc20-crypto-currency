@@ -93,7 +93,7 @@ contract ManualToken {
 }
 ```
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > Despite being an optional method, we're including `decimals` here as a point of clarification since we're declaring our total supply as 100 ether. 100 ether = 100 + 18 decimals places.
 
 The next functions required by the ERC20 standard are `balanceOf` and `transfer`.
@@ -122,13 +122,13 @@ contract ManualToken {
 }
 ```
 
-What is this function meant to return exactly? We're going to need a mapping to track the balances of each address...
+We're going to need a mapping to track the balances of each address...
 
 ```solidity
 mapping(address => uint256) private s_balances;
 ```
 
-So now our `balanceOf` function can return this mapped value based on the address parameter being passed.
+`balanceOf` function can return this mapped value based on the address parameter being passed.
 
 ```solidity
 function balanceOf(address _owner) public pure returns (uint256) {
@@ -138,7 +138,7 @@ function balanceOf(address _owner) public pure returns (uint256) {
 
 An interesting thing that comes to light from this function is - someone's balance of a token is really just some mapping on a smart contract that says `this number is associated with this address` That's it. All swaps, transfers and trades are represented as an updating to the balance of this mapping.
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > Our name function could also be represented by a public declaration such as `string public name = "ManualToken";`. This is because Solidity creates public getter functions when compiled for any publicly accessible storage variables!
 
 Our next required function is transfer:
@@ -159,7 +159,7 @@ So, a basic transfer function could look something like the above, a simple adju
 
 Let's using the OpenZeppelin Library to achieve pre-deployed, audited, and ready-to-go contracts to build our ERC20 token.
 
-> ❗ **NOTE**
+> ❗ **NOTE** <br />
 > OpenZeppelin is renowned for its Smart Contract framework, offering a vast repository of audited contracts readily integrable into your codebase.
 
 Access [OpenZeppelin's documentation](https://docs.openzeppelin.com/contracts/5.x/) via their official website. By navigating to [Products -> Contracts Library](https://www.openzeppelin.com/contracts), you can discover a vast array of ready-to-use contracts.
@@ -195,7 +195,7 @@ contract MyToken is ERC20 {
 
 By importing the OpenZeppelin implementation of ERC20 this way, we inherit all the functionality of the ERC20 standard with much less work and a level of confidence that the code has been testing and verified.
 
-> ❗ **PROTIP**
+> ❗ **PROTIP** <br />
 > If you're looking for an alternative library full of trusted contracts, I recommend looking at the **[Solmate Repo](https://github.com/transmissions11/solmate)** by Transmissions11.
 
 Now, we should recall that when inheriting from a contract with a constructor, our contract must fulfill the requirements of that constructor. We'll need to define details like a name and symbol for MyToken.
@@ -217,56 +217,46 @@ For the purposes of simple examples like this, I like to mint the initialSupply 
 
 As always we can perform a sanity check to assure things are working as expected by running `forge build`.
 
-### ERC20 Deploy Script
-
-With our simple token contract written, we'll of course want to test and deploy it. Let's get started with writing a deploy script.
+## ERC20 Deploy Script
 
 In your workspace's `script` folder, create a file named `DeployMyToken.s.sol`.
 
-We expect MyToken to behave the same, regardless of the chain it's deployed on, so we don't really need a `HelperConfig` for this example. We'll skip that step and move write into writing the deploy script.
+We expect MyToken to behave the same, regardless of the chain it's deployed on, so we don't really need a `HelperConfig` for this example.
 
-To begin, we can import Script and MyToken as well as add the skeleton of our run function:
+Import Script and MyToken as well as add the skeleton of our run function:
 
 ```solidity
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.18;
 
-import {Script} from "forge-std/Script.sol";
-import {MyToken} from "../src/MyToken.sol";
+import { Script } from "forge-std/Script.sol";
+import { MyToken } from "../src/MyToken.sol";
 
 contract DeployMyToken is Script {
     function run() external {}
 }
 ```
 
-We're going to keep this really basic, we just want to deploy MyToken. We know that MyToken requires an initial supply as a constructor parameter, so let's declare that and then deploy our contract.
+We just want to deploy MyToken. We know that MyToken requires an initial supply as a constructor parameter, so let's declare that and then deploy our contract.
 
 ```solidity
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.18;
 
-import {Script} from "forge-std/Script.sol";
-import {MyToken} from "../src/MyToken.sol";
+import { Script } from "forge-std/Script.sol";
+import { MyToken } from "../src/MyToken.sol";
 
 contract DeployMyToken is Script {
     uint256 public constant INITIAL_SUPPLY = 1000 ether;
 
     function run() external returns (MyToken) {
         vm.startBroadcast();
-        MyToken ot = new MyToken(INITIAL_SUPPLY);
+        MyToken mt = new MyToken(INITIAL_SUPPLY);
         vm.stopBroadcast();
 
-        return ot;
+        return mt;
     }
 }
-
-```
-
-run `anvil` in a new terminal window and then and then run:
-```bash
-@forge script script/DeployMyToken.s.sol:DeployMyToken --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast
 ```
 
 ## Test ERC20 using AI
@@ -278,9 +268,9 @@ We're going to write a couple tests together, then see if an AI can help us with
 
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
-import {DeployMyToken} from "../script/DeployMyToken.s.sol";
-import {MyToken} from "../src/MyToken.sol";
+import { Test } from "forge-std/Test.sol";
+import { DeployMyToken } from "../script/DeployMyToken.s.sol";
+import { MyToken } from "../src/MyToken.sol";
 
 contract MyTokenTest is Test {
     function setUp() public {}
@@ -294,9 +284,9 @@ With this boiler plate set up in `MyTokenTest.t.sol` we can begin by declaring `
 
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
-import {DeployMyToken} from "../script/DeployMyToken.s.sol";
-import {MyToken} from "../src/MyToken.sol";
+import { Test } from "forge-std/Test.sol";
+import { DeployMyToken } from "../script/DeployMyToken.s.sol";
+import { MyToken } from "../src/MyToken.sol";
 
 contract MyTokenTest is Test {
     MyToken public myToken;
@@ -319,9 +309,9 @@ The last thing we need in our `setUp` function is to assure one of our accounts 
 
 pragma solidity ^0.8.18;
 
-import {Test} from "forge-std/Test.sol";
-import {DeployMyToken} from "../script/DeployMyToken.s.sol";
-import {MyToken} from "../src/MyToken.sol";
+import { Test } from "forge-std/Test.sol";
+import { DeployMyToken } from "../script/DeployMyToken.s.sol";
+import { MyToken } from "../src/MyToken.sol";
 
 contract MyTokenTest is Test {
     MyToken public myToken;
@@ -342,16 +332,16 @@ contract MyTokenTest is Test {
 }
 ```
 
-Bam! With this we're ready to start writing our first test. We'll start with a simple one, let's assure that the `STARTING_BALANCE` was in fact sent to mra.
+With this we're ready to start writing our first test. We'll start with a simple one, let's assure that the `STARTING_BALANCE` was in fact sent to mra.
 
 ```solidity
-function testmraBalance() public view {
+function testMRABalance() public view {
     assertEq(STARTING_BALANCE, myToken.balanceOf(mra));
 }
 ```
 
 ```bash
-forge test --mt testmraBalance
+forge test --mt testMRABalance
 ```
 
 <img src="./images/erc20-ai-tests-and-recap1.png" alt="erc20-ai-tests-and-recap1">
